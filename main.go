@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
-	"strconv"
 )
 
 var templates = template.Must(template.ParseGlob("templates/*.html"))
@@ -26,7 +25,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	fmt.Println("ecocosts: started")
 	assets := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets")))
-	http.Handle("/assets/", fileServer)
+	http.Handle("/assets/", assets)
 	http.HandleFunc("/", indexHandler)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
