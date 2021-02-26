@@ -1,0 +1,11 @@
+:root {
+	--bg-color: #ccc;
+	--main-color: #589b4c;
+}
+
+body {
+	background-color: var(--bg-color);
+	font-family: sans-serif;
+	font-size: 1rem;
+	line-height: 1.6;
+}
