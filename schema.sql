@@ -7,11 +7,9 @@ CREATE TABLE client (
 );
 
 CREATE TABLE budget (
-	id SERIAL,
 	client_id INT NOT NULL,
 	cat_id INT NOT NULL,
 	amount FLOAT,
-	PRIMARY KEY (id),
 	FOREIGN KEY(client_id) REFERENCES client(id) ON DELETE CASCADE,
 	FOREIGN KEY(cat_id) REFERENCES category(id)
 );
