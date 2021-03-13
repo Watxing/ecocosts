@@ -20,7 +20,6 @@ Operations:
 # env variables
 export PGDATA=".db"
 export PGDATABASE="ecocosts"
-DBNAME="ecocosts"
 
 init() {
 	# db exist?
@@ -42,11 +41,10 @@ init() {
 	createdb
 
 	# create initial schema
-	#psql -d "$DBNAME" -a -f "schema.sql"
 	psql -a -f "schema.sql"
 	
 	# insert data and permissions
-	psql -d "$DBNAME" -a -f "data.sql"
+	psql -a -f "data.sql"
 
 	# stop db
 	stop
