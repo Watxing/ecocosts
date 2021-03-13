@@ -1,4 +1,4 @@
-CREATE TABLE clients (
+CREATE TABLE client (
 	id SERIAL,
 	name TEXT UNIQUE NOT NULL,
 	pass TEXT NOT NULL,
@@ -6,14 +6,14 @@ CREATE TABLE clients (
 	CHECK (LENGTH(name) < 20)
 );
 
-CREATE TABLE budgets (
+CREATE TABLE budget (
 	id SERIAL,
 	client_id INT NOT NULL,
 	cat_id INT NOT NULL,
 	amount FLOAT,
 	PRIMARY KEY (id),
-	FOREIGN KEY(client_id) REFERENCES clients(id) ON DELETE CASCADE,
-	FOREIGN KEY(cat_id) REFERENCES categories(id)
+	FOREIGN KEY(client_id) REFERENCES client(id) ON DELETE CASCADE,
+	FOREIGN KEY(cat_id) REFERENCES category(id)
 );
 
 CREATE TABLE transaction (
@@ -25,20 +25,20 @@ CREATE TABLE transaction (
 	description TEXT,
 	time TIMESTAMP NOT NULL,
 	PRIMARY KEY (id),
-	FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
-	FOREIGN KEY (cat_id) REFERENCES categories(id)
+	FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE,
+	FOREIGN KEY (cat_id) REFERENCES category(id)
 );
 
-CREATE TABLE categories (
+CREATE TABLE category (
 	id SERIAL,
 	description TEXT NOT NULL,
 	PRIMARY KEY (id)
 );
 
-CREATE TABLE stocks (
+CREATE TABLE stock (
 	client_id INT NOT NULL,
-	stock TEXT NOT NULL,
-	qty INT NOT NULL,
-	FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
-	CHECK (qty > 0)
+	symbol TEXT NOT NULL,
+	quantity INT NOT NULL,
+	FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE,
+	CHECK (quantity > 0)
 );	
