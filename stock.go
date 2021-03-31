@@ -1,52 +1,65 @@
 package main
 
 import (
-	"fmt"
-	"encoding/json"
-	"net/http"
-	"time"
 	"io/ioutil"
+	"net/http"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 )
 
-// this is pretty trash >_<
-type Stock struct {
-	QuoteSummary struct {
-		Results []struct {
-			Quote struct {
-				CurrentPrice float64 `json:"currentPrice"`
-			} `json:"financialData"`
-		} `json:"result"`
-		Error struct {
-			Code string `json:"code"`
-			Desc string `json:"description"`
-		} `json:"error"`
-	} `json:"quoteSummary"`
+type stock struct {
+	currPrice float64
+	prevClose float64
 }
 
-func getStockQuote(s string) error {
+func fetch(url string) ([]byte, error) {
+	// http client with timeout
 	client := http.Client{Timeout: 10 * time.Second}
-	url := "https://query2.finance.yahoo.com/v10/finance/quoteSummary/"+s+"?formatted=false&modules=financialData"
 
-	r, err := client.Get(url)
+	// fetch URL
+	resp, err := client.Get(url)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer r.Body.Close()
+	defer resp.Body.Close()
 
-	read, _ := ioutil.ReadAll(r.Body)
-	test := new(Stock)
-
-	err = json.Unmarshal(read, &test)
+	// convert to byte slice
+	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
-	fmt.Println(s, test)
-
-	return nil
+	return bytes, nil
 }
 
-func main() {
-	getStockQuote("INTC")
-	getStockQuote("STOCK")
+func getStockQuote(symbol string) (stock, error) {
+	var s stock
+
+	resp, err := fetch("https://query2.finance.yahoo.com/v10/finance/quoteSummary/" +
+		symbol + "?formatted=false&modules=price")
+	if err != nil {
+		return s, err
+	}
+
+	// get current stock price
+	re := regexp.MustCompile(`regularMarketPrice\":[0-9]*\.[0-9]+`)
+	currPrice := string(re.Find(resp))
+	currPrice = strings.TrimPrefix(currPrice, "regularMarketPrice\":")
+	s.currPrice, err = strconv.ParseFloat(currPrice, 64)
+	if err != nil {
+		return s, err
+	}
+
+	// get previous close
+	re = regexp.MustCompile(`regularMarketPreviousClose\":[0-9]*\.[0-9]+`)
+	prevClose := string(re.Find(resp))
+	prevClose = strings.TrimPrefix(prevClose, "regularMarketPreviousClose\":")
+	s.prevClose, err = strconv.ParseFloat(prevClose, 64)
+	if err != nil {
+		return s, err
+	}
+
+	return s, nil
 }
