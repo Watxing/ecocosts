@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -33,7 +32,7 @@ func viewTransaction() ([]transaction, error) {
 func ledgerHandler(w http.ResponseWriter, r *http.Request) {
 	t, err := viewTransaction()
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	if err := templates.ExecuteTemplate(w, "ledger.html", t); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
