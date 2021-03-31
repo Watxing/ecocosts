@@ -23,10 +23,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println("ecocosts: started")
+	println("running")
 	assets := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets")))
 	http.Handle("/assets/", assets)
 	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/ledger", ledgerHandler)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(fmt.Errorf("Failed to start HTTP server: %v", err))
