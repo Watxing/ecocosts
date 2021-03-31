@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v4/stdlib"
 	"time"
 )
 
@@ -22,17 +22,17 @@ type category struct {
 type budget struct {
 	client_id int
 	cat_id    int
-	amount    float64
+	amount    sql.NullFloat64
 }
 
 type transaction struct {
-	id          int
-	client_id   int
-	cat_id      int
-	amount      float64
-	balance     float64
-	description string
-	time        Time
+	ID          int
+	Client_id   int
+	Cat_id      sql.NullInt64
+	Amount      float64
+	Balance     float64
+	Description sql.NullString
+	Time        time.Time
 }
 
 type stock struct {
@@ -43,15 +43,15 @@ type stock struct {
 
 // initializes the database. panics if a failure.
 func init() {
+	var err error
 	// do NOT use in production
 	connStr := "user=postgres password=? dbname=ecocosts sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
+	db, err = sql.Open("pgx", connStr)
 	if err != nil {
 		panic(err)
 	}
 
-	err = db.Ping()
-	if err != nil {
+	if err = db.Ping(); err != nil {
 		panic(err)
 	}
 }
