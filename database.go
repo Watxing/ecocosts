@@ -7,12 +7,6 @@ import (
 
 var db *sql.DB
 
-type client struct {
-	id   int
-	name string
-	pass string
-}
-
 type category struct {
 	id          int
 	description string
