@@ -29,11 +29,62 @@ func (c *client) insert() error {
 }
 
 // Check if in database.
-func (c *client) exist() error {
+func (c *client) exist() bool {
 	err := db.QueryRow("SELECT id FROM client WHERE name = $1", c.Name).Scan(&c.id)
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func (c *client) passCorrect() error {
+	var pass string
+
+	err := db.QueryRow("SELECT pass FROM client WHERE name = $1", c.Name).Scan(&pass)
 	if err != nil {
 		return err
 	}
 
+	if c.pass != pass {
+		return errors.New("invalid pass")
+	}
+
 	return nil
+}
+
+// If used in production, it might be preferably to create some sort of cookie
+// session manager that manages cookies more securely. perhaps implement bcrypt
+// later for some security at least? https://godocs.io/golang.org/x/crypto/bcrypt
+func (c *client) login(w http.ResponseWriter) error {
+	if err := c.passCorrect(); err != nil {
+		return err
+	}
+
+	name := http.Cookie {
+		Name: "name",
+		Value: c.Name,
+		MaxAge: 86400, // 24 hours from now
+		Secure: true,
+	}
+
+	pass := http.Cookie {
+		Name: "pass",
+		Value: c.pass,
+		MaxAge: 86400, // 24 hours from now
+		Secure: true,
+	}
+
+	http.SetCookie(w, &name)
+	http.SetCookie(w, &pass)
+
+	return nil
+}
+
+func (c *client) readCookie(w http.ResponseWriter, r *http.Request) bool {
+	name, _ := r.Cookie("name")
+	pass, _ := r.Cookie("pass")
+
+	c.Name = name.Value
+	c.pass = pass.Value
 }
