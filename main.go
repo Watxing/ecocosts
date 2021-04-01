@@ -28,6 +28,7 @@ func main() {
 	http.Handle("/assets/", assets)
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/ledger", ledgerHandler)
+	http.HandleFunc("/auth", authHandler)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(fmt.Errorf("Failed to start HTTP server: %v", err))
