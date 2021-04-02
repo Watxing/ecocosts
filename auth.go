@@ -4,10 +4,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"fmt"
-	"net/http"
-	"io"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
 )
 
 var key []byte
@@ -68,7 +68,6 @@ func decrypt(payload []byte) error {
 	fmt.Printf("%q\n", plaintext)
 	return nil
 }
-
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
 	var c client
