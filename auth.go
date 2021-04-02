@@ -1,9 +1,81 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"net/http"
+	"io"
+	"errors"
 )
+
+var key []byte
+
+func generateKey() ([]byte, error) {
+	var runes = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*()_+{}|<>?=-")
+	key := make([]byte, 32)
+
+	for i := range key {
+		// Generate random
+		p, err := rand.Int(rand.Reader, big.NewInt(83))
+		if err != nil {
+			return key, err
+		}
+
+		key[i] = runes[p.Int64()]
+	}
+
+	return key, nil
+}
+
+func encrypt(payload []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, err
+	}
+
+	ciphertext := gcm.Seal(nonce, nonce, payload, nil)
+	fmt.Printf("%x\n", ciphertext)
+	return ciphertext, nil
+}
+
+func decrypt(payload []byte) error {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return err
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(payload) < nonceSize {
+		return errors.New("payload is less than nonce size")
+	}
+
+	nonce, payload := payload[:nonceSize], payload[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, payload, nil)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%q\n", plaintext)
+	return nil
+}
+
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
 	var c client
