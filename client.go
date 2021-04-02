@@ -8,10 +8,11 @@ import (
 )
 
 type client struct {
-	id   int
-	Name string
-	pass string
-	stocks []stock
+	id           int
+	Name         string
+	pass         string
+	stocks       []stock
+	transactions []transaction
 }
 
 // Insert values into database. This inserts the password as plain-text. Do NOT
@@ -137,8 +138,6 @@ func (c *client) updateStocks() error {
 		return err
 	}
 
-	//stocks := make([]stock, 0)
-
 	for rows.Next() {
 		var s stock
 		err := rows.Scan(&s.symbol, &s.quantity)
@@ -147,6 +146,38 @@ func (c *client) updateStocks() error {
 		}
 		s.getPrice()
 		c.stocks = append(c.stocks, s)
+	}
+
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *client) updateTransactions() error {
+	if c.id == 0 {
+		return errors.New("client: id is not set")
+	}
+
+	rows, err := db.Query(`
+		SELECT cat_id, amount, balance, description, time
+		FROM transaction WHERE client_id = $1 ORDER BY time DESC`, c.id)
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var t transaction
+		err := rows.Scan(&t.Cat_id, &t.Amount, &t.Balance, &t.Description, &t.Time)
+		if err != nil {
+			return err
+		}
+		c.transactions = append(c.transactions, t)
+	}
+
+	if err = rows.Err(); err != nil {
+		return err
 	}
 
 	return nil
