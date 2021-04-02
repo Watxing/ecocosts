@@ -11,6 +11,7 @@ type client struct {
 	id   int
 	Name string
 	pass string
+	stocks []stock
 }
 
 // Insert values into database. This inserts the password as plain-text. Do NOT
@@ -121,6 +122,31 @@ func (c *client) readCookie(w http.ResponseWriter, r *http.Request) error {
 
 	if err := c.update(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (c *client) updateStocks() error {
+	if c.id == 0 {
+		return errors.New("client: id is not set")
+	}
+
+	rows, err := db.Query("SELECT symbol, quantity FROM stock WHERE client_id = $1", c.id)
+	if err != nil {
+		return err
+	}
+
+	//stocks := make([]stock, 0)
+
+	for rows.Next() {
+		var s stock
+		err := rows.Scan(&s.symbol, &s.quantity)
+		if err != nil {
+			return err
+		}
+		s.getPrice()
+		c.stocks = append(c.stocks, s)
 	}
 
 	return nil
