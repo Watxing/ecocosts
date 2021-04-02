@@ -33,4 +33,11 @@ func main() {
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(fmt.Errorf("Failed to start HTTP server: %v", err))
 	}
+
+	var err error
+	key, err = generateKey()
+	if err != nil {
+		panic(fmt.Errorf("Key generation failed: %v", err))
+	}
+
 }
