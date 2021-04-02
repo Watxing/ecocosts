@@ -1,10 +1,15 @@
 <html>
-  {{template "head"}}
-  <body>
-	  {{template "nav"}}
-		<main>
-		  hello world
-    </main>
-		{{template "footer"}}
-	</body>
+{{template "head"}}
+<body>
+{{template "nav"}}
+<main>
+  <h1>Hello, {{ .Name }}
+  <h1>Stocks</h1>
+  <!-- List user stocks -->
+  <h1>Categories and Budgets</h1>
+  <h1>Latest Transactions</h1>
+  <!-- max 20 -->
+</main>
+{{template "footer"}}
+</body>
 </html>
