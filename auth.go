@@ -5,7 +5,6 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -40,7 +39,6 @@ func encrypt(payload []byte) ([]byte, error) {
 	}
 
 	ciphertext := gcm.Seal(nonce, nonce, payload, nil)
-	fmt.Printf("%x\n", ciphertext)
 	return ciphertext, nil
 }
 
@@ -82,7 +80,6 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 		c.Name = r.FormValue("name")
 		c.pass = r.FormValue("pass")
 		action := r.FormValue("action")
-		fmt.Println(c.Name)
 
 		if action == "login" {
 			if err := c.login(w); err != nil {
@@ -100,7 +97,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		http.Redirect(w, r, "/auth", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
 	if err := templates.ExecuteTemplate(w, "auth.html", nil); err != nil {
