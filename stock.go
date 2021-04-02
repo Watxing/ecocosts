@@ -10,7 +10,6 @@ import (
 )
 
 type stock struct {
-	client_id int
 	symbol    string
 	quantity  int
 	price     quote
