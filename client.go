@@ -11,8 +11,8 @@ type client struct {
 	id           int
 	Name         string
 	pass         string
-	stocks       []stock
-	transactions []transaction
+	Stocks       []stock
+	Transactions []transaction
 }
 
 // Insert values into database. This inserts the password as plain-text. Do NOT
@@ -140,12 +140,12 @@ func (c *client) updateStocks() error {
 
 	for rows.Next() {
 		var s stock
-		err := rows.Scan(&s.symbol, &s.quantity)
+		err := rows.Scan(&s.Symbol, &s.Quantity)
 		if err != nil {
 			return err
 		}
 		s.getPrice()
-		c.stocks = append(c.stocks, s)
+		c.Stocks = append(c.Stocks, s)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -161,8 +161,8 @@ func (c *client) updateTransactions() error {
 	}
 
 	rows, err := db.Query(`
-		SELECT cat_id, amount, balance, description, time
-		FROM transaction WHERE client_id = $1 ORDER BY time DESC`, c.id)
+		SELECT cat_id, amount, balance, description, time FROM transaction
+		WHERE client_id = $1 ORDER BY time DESC LIMIT 20`, c.id)
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (c *client) updateTransactions() error {
 		if err != nil {
 			return err
 		}
-		c.transactions = append(c.transactions, t)
+		c.Transactions = append(c.Transactions, t)
 	}
 
 	if err = rows.Err(); err != nil {
