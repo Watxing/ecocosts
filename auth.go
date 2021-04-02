@@ -5,7 +5,6 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"fmt"
-	"math/big"
 	"net/http"
 	"io"
 	"errors"
@@ -14,19 +13,13 @@ import (
 var key []byte
 
 func generateKey() ([]byte, error) {
-	var runes = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*()_+{}|<>?=-")
 	key := make([]byte, 32)
-
-	for i := range key {
-		// Generate random
-		p, err := rand.Int(rand.Reader, big.NewInt(83))
-		if err != nil {
-			return key, err
-		}
-
-		key[i] = runes[p.Int64()]
+	p, err := rand.Prime(rand.Reader, 256)
+	if err != nil {
+		return key, err
 	}
 
+	p.FillBytes(key)
 	return key, nil
 }
 
