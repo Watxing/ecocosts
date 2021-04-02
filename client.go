@@ -87,4 +87,5 @@ func (c *client) readCookie(w http.ResponseWriter, r *http.Request) bool {
 
 	c.Name = name.Value
 	c.pass = pass.Value
+	return true
 }
