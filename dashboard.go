@@ -1,15 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 )
-
-type payload struct {
-	Name string
-	Data interface{}
-}
 
 func dashHandler(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimLeft(r.URL.Path, "/")
@@ -30,11 +24,14 @@ func dashHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(c.stocks)
 
-	p := payload{c.Name, nil}
+	err = c.updateTransactions()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	if err := templates.ExecuteTemplate(w, "index.html", p); err != nil {
+	if err := templates.ExecuteTemplate(w, "index.html", c); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
