@@ -9,6 +9,12 @@ import (
 	"time"
 )
 
+type stock struct {
+	client_id int
+	symbol    string
+	quantity  int
+}
+
 type quote struct {
 	currPrice float64
 	prevClose float64

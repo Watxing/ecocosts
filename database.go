@@ -18,12 +18,6 @@ type budget struct {
 	amount    sql.NullFloat64
 }
 
-type stock struct {
-	client_id int
-	symbol    string
-	quantity  int
-}
-
 // initializes the database. panics if a failure.
 func init() {
 	var err error
