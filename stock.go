@@ -13,6 +13,7 @@ type stock struct {
 	client_id int
 	symbol    string
 	quantity  int
+	price     quote
 }
 
 type quote struct {
@@ -20,7 +21,15 @@ type quote struct {
 	prevClose float64
 }
 
-func fetch(url string) ([]byte, error) {
+func (s *stock) getPrice() error {
+	if err := s.price.update(s.symbol); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *quote) fetch(url string) ([]byte, error) {
 	// http client with timeout
 	client := http.Client{Timeout: 10 * time.Second}
 
@@ -40,13 +49,11 @@ func fetch(url string) ([]byte, error) {
 	return bytes, nil
 }
 
-func getStockQuote(symbol string) (quote, error) {
-	var q quote
-
-	resp, err := fetch("https://query2.finance.yahoo.com/v10/finance/quoteSummary/" +
+func (q *quote) update(symbol string) error {
+	resp, err := q.fetch("https://query2.finance.yahoo.com/v10/finance/quoteSummary/" +
 		symbol + "?formatted=false&modules=price")
 	if err != nil {
-		return q, err
+		return err
 	}
 
 	// get current stock price
@@ -55,7 +62,7 @@ func getStockQuote(symbol string) (quote, error) {
 	currPrice = strings.TrimPrefix(currPrice, "regularMarketPrice\":")
 	q.currPrice, err = strconv.ParseFloat(currPrice, 64)
 	if err != nil {
-		return q, err
+		return err
 	}
 
 	// get previous close
@@ -64,8 +71,8 @@ func getStockQuote(symbol string) (quote, error) {
 	prevClose = strings.TrimPrefix(prevClose, "regularMarketPreviousClose\":")
 	q.prevClose, err = strconv.ParseFloat(prevClose, 64)
 	if err != nil {
-		return q, err
+		return err
 	}
 
-	return q, nil
+	return nil
 }
