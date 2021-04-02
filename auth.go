@@ -44,37 +44,34 @@ func encrypt(payload []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func decrypt(payload []byte) error {
+func decrypt(payload []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	nonceSize := gcm.NonceSize()
 	if len(payload) < nonceSize {
-		return errors.New("payload is less than nonce size")
+		return nil, errors.New("payload is less than nonce size")
 	}
 
 	nonce, payload := payload[:nonceSize], payload[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, payload, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Printf("%q\n", plaintext)
-	return nil
+	return plaintext, nil
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
 	var c client
 
-	if c.readCookie(w, r) {
-		http.Redirect(w, r, "/", http.StatusFound)
-	}
+	c.readCookie(w, r)
 
 	if r.Method == "POST" {
 		if err := r.ParseForm(); err != nil {
