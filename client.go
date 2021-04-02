@@ -78,6 +78,25 @@ func (c *client) login(w http.ResponseWriter) error {
 	return nil
 }
 
+// Fetch name or ID
+func (c *client) update() (err error) {
+	if c.Name == "" && c.id == 0 {
+		return errors.New("Name and id are not set")
+	}
+
+	if c.Name != "" {
+		err = db.QueryRow("SELECT id FROM client WHERE name = $1", c.Name).Scan(&c.id)
+	} else if c.id != 0 {
+		err = db.QueryRow("SELECT name FROM client WHERE id = $1", c.id).Scan(&c.Name)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Reads id from the cookie set by us.
 func (c *client) readCookie(w http.ResponseWriter, r *http.Request) error {
 	crypt, err := r.Cookie("key")
@@ -97,6 +116,10 @@ func (c *client) readCookie(w http.ResponseWriter, r *http.Request) error {
 
 	c.id, err = strconv.Atoi(string(plain))
 	if err != nil {
+		return err
+	}
+
+	if err := c.update(); err != nil {
 		return err
 	}
 
