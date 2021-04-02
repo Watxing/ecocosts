@@ -1,8 +1,10 @@
 package main
 
 import (
-	"net/http"
+	"encoding/hex"
 	"errors"
+	"net/http"
+	"strconv"
 )
 
 type client struct {
@@ -41,7 +43,7 @@ func (c *client) exist() bool {
 func (c *client) passCorrect() error {
 	var pass string
 
-	err := db.QueryRow("SELECT pass FROM client WHERE name = $1", c.Name).Scan(&pass)
+	err := db.QueryRow("SELECT id, pass FROM client WHERE name = $1", c.Name).Scan(&c.id, &pass)
 	if err != nil {
 		return err
 	}
@@ -54,38 +56,49 @@ func (c *client) passCorrect() error {
 }
 
 // If used in production, it might be preferably to create some sort of cookie
-// session manager that manages cookies more securely. perhaps implement bcrypt
-// later for some security at least? https://godocs.io/golang.org/x/crypto/bcrypt
+// session manager that manages cookies more securely. This function currently
+// encrypts the user's ID and uses the runtime key for encryption with AES-256.
 func (c *client) login(w http.ResponseWriter) error {
 	if err := c.passCorrect(); err != nil {
 		return err
 	}
 
-	name := http.Cookie {
-		Name: "name",
-		Value: c.Name,
-		MaxAge: 86400, // 24 hours from now
-		Secure: true,
+	cipher, err := encrypt([]byte(strconv.Itoa(c.id)))
+	if err != nil {
+		return err
 	}
 
-	pass := http.Cookie {
-		Name: "pass",
-		Value: c.pass,
+	http.SetCookie(w, &http.Cookie{
+		Name:   "key",
+		Value:  hex.EncodeToString(cipher),
 		MaxAge: 86400, // 24 hours from now
 		Secure: true,
-	}
-
-	http.SetCookie(w, &name)
-	http.SetCookie(w, &pass)
+	})
 
 	return nil
 }
 
-func (c *client) readCookie(w http.ResponseWriter, r *http.Request) bool {
-	name, _ := r.Cookie("name")
-	pass, _ := r.Cookie("pass")
+// Reads id from the cookie set by us.
+func (c *client) readCookie(w http.ResponseWriter, r *http.Request) error {
+	crypt, err := r.Cookie("key")
+	if err != nil {
+		return err
+	}
 
-	c.Name = name.Value
-	c.pass = pass.Value
-	return true
+	cipher, err := hex.DecodeString(crypt.Value)
+	if err != nil {
+		return err
+	}
+
+	plain, err := decrypt(cipher)
+	if err != nil {
+		return err
+	}
+
+	c.id, err = strconv.Atoi(string(plain))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
