@@ -34,7 +34,7 @@
         <th>amount</th>
         <th>balance</th>
         <th>description</th>
-        <th>time</th>
+        <th>Time in UTC</th>
       </tr>
     </thead>
     <tbody>
@@ -44,7 +44,7 @@
       <td>{{ $t.Amount }}</td>
       <td>{{ $t.Balance }}</td>
       <td>{{ $t.Description.String }}</td>
-      <td>{{ $t.Time }}</td>
+      <td>{{ $t.Time.Format "2006 Jan 02 15:04" }}</td>
     </tr>
     {{ end }}
     </tbody>
