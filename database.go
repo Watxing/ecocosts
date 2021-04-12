@@ -8,8 +8,8 @@ import (
 var db *sql.DB
 
 type category struct {
-	id          int
-	description string
+	ID          int
+	Description string
 }
 
 type budget struct {
