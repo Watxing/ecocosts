@@ -25,9 +25,9 @@ CREATE TABLE transaction (
 	client_id INT NOT NULL,
 	cat_id INT,
 	amount FLOAT NOT NULL,
-	balance FLOAT NOT NULL,
+	balance FLOAT NOT NULL DEFAULT 0.00,
 	description TEXT,
-	time TIMESTAMP NOT NULL,
+	time TIMESTAMP NOT NULL DEFAULT 'now'::timestamp,
 	PRIMARY KEY (id),
 	FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE,
 	FOREIGN KEY (cat_id) REFERENCES category(id)
@@ -40,3 +40,26 @@ CREATE TABLE stock (
 	FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE,
 	CHECK (quantity > 0)
 );	
+
+CREATE FUNCTION calc_balance() RETURNS trigger AS $$
+BEGIN
+	UPDATE transaction
+	SET balance = coalesce(NEW.amount + (
+		SELECT DISTINCT balance
+		FROM transaction
+		WHERE client_id = NEW.client_id AND time = (
+			SELECT MAX(time)
+			FROM transaction
+			WHERE client_id = NEW.client_id AND time < NEW.time
+		)
+	), NEW.amount)
+	WHERE time = NEW.time AND client_id = NEW.client_id;
+RETURN NULL;
+END;
+$$ LANGUAGE plpgsql VOLATILE COST 100;
+
+CREATE TRIGGER update_calc_balance
+AFTER INSERT OR UPDATE OF amount
+ON transaction
+FOR EACH ROW
+EXECUTE PROCEDURE calc_balance();
