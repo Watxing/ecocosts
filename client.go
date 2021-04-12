@@ -174,6 +174,9 @@ func (c *client) updateTransactions(limit int) error {
 		if err != nil {
 			return err
 		}
+		if err := t.updateCategory(); err != nil {
+			return err
+		}
 		c.Transactions = append(c.Transactions, t)
 	}
 
