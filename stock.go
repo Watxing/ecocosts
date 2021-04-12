@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -38,6 +39,11 @@ func (s *stock) insert(client_id int) error {
 	}
 	if err != nil {
 		return err
+	}
+
+	// implement better error checking in production to see if stock exist.
+	if err := s.getPrice(); err != nil {
+		return fmt.Errorf("Stock exist?: %v", err)
 	}
 
 	_, err = db.Exec(`INSERT INTO stock (client_id, symbol, quantity)
