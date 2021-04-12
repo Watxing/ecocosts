@@ -31,7 +31,6 @@
       </tr>
     </thead>
     <tbody>
-    {{ $categories := .Categories }}
     {{ range $t := .Client.Transactions }}
     <tr>
       <td>{{ $t.Cat_name }}</td>
