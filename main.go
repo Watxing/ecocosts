@@ -21,6 +21,7 @@ func main() {
 	http.HandleFunc("/", dashHandler)
 	http.HandleFunc("/ledger", ledgerHandler)
 	http.HandleFunc("/budget", budgetHandler)
+	http.HandleFunc("/stock", stockHandler)
 	http.HandleFunc("/auth", authHandler)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {

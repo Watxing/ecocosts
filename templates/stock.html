@@ -1,0 +1,39 @@
+<html>
+{{template "head"}}
+<body>
+{{template "nav" .Name }}
+<main>
+  <h1>Add Stock</h1>
+  <p>WARNING: Adding a existing symbol with override the current quantity.</p>
+  <form method="post">
+    <label for="symbol">Symbol:</label>
+    <input type="text" name="symbol" required>
+    <label for="quantity">Quantity:</label>
+    <input type="text" name="quantity" required>
+    <input type="submit" value="Submit">
+  </form>
+  <h1>Stocks</h1>
+  <table>
+    <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Quantity</th>
+      <th>Previous Close</th>
+      <th>Current Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ range $s := .Stocks }}
+    <tr>
+      <td>{{ $s.Symbol }}</td>
+      <td>{{ $s.Quantity }}</td>
+      <td>{{ $s.Price.PrevClose }}</td>
+      <td>{{ $s.Price.CurrPrice }}</td>
+    </tr>
+    {{ end }}
+    </tbody>
+  </table>
+</main>
+{{template "footer"}}
+</body>
+</html>
