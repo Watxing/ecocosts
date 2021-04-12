@@ -161,7 +161,8 @@ func (c *client) updateTransactions(limit int) error {
 	}
 
 	rows, err := db.Query(`
-		SELECT cat_id, amount, balance, description, time FROM transaction
+		SELECT cat_id, amount::money::numeric::float8,
+		balance::money::numeric::float8, description, time FROM transaction
 		WHERE client_id = $1 ORDER BY time DESC LIMIT $2`, c.id, limit)
 	if err != nil {
 		return err

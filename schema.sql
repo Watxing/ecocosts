@@ -15,7 +15,7 @@ CREATE TABLE category (
 CREATE TABLE budget (
 	client_id INT NOT NULL,
 	cat_id INT NOT NULL,
-	amount FLOAT,
+	amount MONEY,
 	FOREIGN KEY(client_id) REFERENCES client(id) ON DELETE CASCADE,
 	FOREIGN KEY(cat_id) REFERENCES category(id)
 );
@@ -24,8 +24,8 @@ CREATE TABLE transaction (
 	id SERIAL,
 	client_id INT NOT NULL,
 	cat_id INT,
-	amount FLOAT NOT NULL,
-	balance FLOAT NOT NULL DEFAULT 0.00,
+	amount MONEY NOT NULL,
+	balance MONEY NOT NULL DEFAULT 0.00,
 	description TEXT,
 	time TIMESTAMP NOT NULL DEFAULT 'now'::timestamp,
 	PRIMARY KEY (id),
