@@ -1,8 +1,8 @@
 package main
 
 import (
-	"net/http"
 	"database/sql"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -61,14 +61,14 @@ func ledgerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	categories, err := getCategories();
+	categories, err := getCategories()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	data := map[string]interface{} {
-		"Client": c,
+	data := map[string]interface{}{
+		"Client":     c,
 		"Categories": categories,
 	}
 
