@@ -25,7 +25,7 @@ func dashHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = c.updateTransactions()
+	err = c.updateTransactions(20)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

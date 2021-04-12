@@ -155,14 +155,14 @@ func (c *client) updateStocks() error {
 	return nil
 }
 
-func (c *client) updateTransactions() error {
+func (c *client) updateTransactions(limit int) error {
 	if c.id == 0 {
 		return errors.New("client: id is not set")
 	}
 
 	rows, err := db.Query(`
 		SELECT cat_id, amount, balance, description, time FROM transaction
-		WHERE client_id = $1 ORDER BY time DESC LIMIT 20`, c.id)
+		WHERE client_id = $1 ORDER BY time DESC LIMIT $2`, c.id, limit)
 	if err != nil {
 		return err
 	}
