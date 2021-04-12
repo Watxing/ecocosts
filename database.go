@@ -7,11 +7,6 @@ import (
 
 var db *sql.DB
 
-type category struct {
-	ID          int
-	Description string
-}
-
 type budget struct {
 	client_id int
 	cat_id    int
