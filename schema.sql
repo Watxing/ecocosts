@@ -15,7 +15,7 @@ CREATE TABLE category (
 CREATE TABLE budget (
 	client_id INT NOT NULL,
 	cat_id INT NOT NULL,
-	amount MONEY,
+	amount MONEY NOT NULL,
 	FOREIGN KEY(client_id) REFERENCES client(id) ON DELETE CASCADE,
 	FOREIGN KEY(cat_id) REFERENCES category(id)
 );
