@@ -14,6 +14,7 @@ type transaction struct {
 	Balance     float64
 	Description sql.NullString
 	Time        time.Time
+	Cat_name    string
 }
 
 // Inserts values into the database with incremented ID. Check for unset values.
@@ -33,6 +34,25 @@ func (t *transaction) insert() error {
 		t.Balance, t.Description, t.Time)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (t *transaction) updateCategory() error {
+	if !t.Cat_id.Valid {
+		t.Cat_name = "None"
+		return nil
+	}
+
+	categories, err := getCategories()
+	if err != nil {
+		return err
+	}
+	for _, c := range categories {
+		if t.Cat_id.Int64 == int64(c.ID) {
+			t.Cat_name = c.Description
+		}
 	}
 
 	return nil
