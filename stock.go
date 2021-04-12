@@ -28,6 +28,36 @@ func (s *stock) getPrice() error {
 	return nil
 }
 
+// this overrides the current stock in the database; ideally you would probably
+// want to add to the current quantity of stock present. no time.
+func (s *stock) insert(client_id int) error {
+	exist, err := rowExist(`SELECT quantity FROM stock WHERE client_id = $1
+	AND symbol = $2`, client_id, s.Symbol)
+	if exist {
+		s.purge(client_id)
+	}
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`INSERT INTO stock (client_id, symbol, quantity)
+		VALUES ($1, $2, $3)`, client_id, s.Symbol, s.Quantity)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *stock) purge(client_id int) error {
+	_, err := db.Exec("DELETE FROM stock WHERE client_id = $1 AND symbol = $2",
+		client_id, s.Symbol)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (q *quote) fetch(url string) ([]byte, error) {
 	// http client with timeout
 	client := http.Client{Timeout: 10 * time.Second}
