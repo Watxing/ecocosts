@@ -20,6 +20,7 @@
       <th>Quantity</th>
       <th>Previous Close</th>
       <th>Current Price</th>
+      <th>Delete me?</th>
     </tr>
     </thead>
     <tbody>
@@ -29,6 +30,7 @@
       <td>{{ $s.Quantity }}</td>
       <td>{{ $s.Price.PrevClose }}</td>
       <td>{{ $s.Price.CurrPrice }}</td>
+      <td><a href="/stock/delete/{{ $s.Symbol }}">DELETE</a></td>
     </tr>
     {{ end }}
     </tbody>
