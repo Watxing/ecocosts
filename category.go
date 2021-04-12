@@ -5,6 +5,15 @@ type category struct {
 	Description string
 }
 
+func (c *category) update() error {
+	err := db.QueryRow("SELECT description FROM category WHERE id = $1", c.ID).Scan(&c.Description)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getCategories() ([]category, error) {
 	var categories []category
 
