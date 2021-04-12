@@ -20,6 +20,7 @@ func main() {
 	http.Handle("/assets/", assets)
 	http.HandleFunc("/", dashHandler)
 	http.HandleFunc("/ledger", ledgerHandler)
+	http.HandleFunc("/budget", budgetHandler)
 	http.HandleFunc("/auth", authHandler)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {

@@ -2,15 +2,20 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 var db *sql.DB
 
-type budget struct {
-	client_id int
-	cat_id    int
-	amount    sql.NullFloat64
+func rowExist(query string, args ...interface{}) (bool, error) {
+	var exist bool
+	query = fmt.Sprintf("SELECT exists (%s)", query)
+	err := db.QueryRow(query, args...).Scan(&exist)
+	if err != nil && err != sql.ErrNoRows {
+		return false, fmt.Errorf("rowExists: %v", err)
+	}
+	return exist, nil
 }
 
 // initializes the database. panics if a failure.

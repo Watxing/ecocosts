@@ -11,6 +11,7 @@ type client struct {
 	id           int
 	Name         string
 	pass         string
+	Budgets      []budget
 	Stocks       []stock
 	Transactions []transaction
 }
@@ -178,6 +179,34 @@ func (c *client) updateTransactions(limit int) error {
 			return err
 		}
 		c.Transactions = append(c.Transactions, t)
+	}
+
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *client) updateBudgets() error {
+	if c.id == 0 {
+		return errors.New("client: id is not set")
+	}
+
+	rows, err := db.Query(`SELECT cat_id, amount::money::numeric::float8
+	FROM budget WHERE client_id = $1`, c.id)
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var b budget
+		err := rows.Scan(&b.Category.ID, &b.Amount)
+		if err != nil {
+			return err
+		}
+		b.Category.update()
+		c.Budgets = append(c.Budgets, b)
 	}
 
 	if err = rows.Err(); err != nil {
