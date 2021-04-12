@@ -1,7 +1,14 @@
 {{define "nav"}}
 <nav>
-  <a href="#login">Log in</a>
+  {{ if . }}
+  Hello, {{ . }}
+  <a href="/">Dashboard</a>
   &mdash;
-  <a href="#signup">Sign up</a>
+  <a href="/ledger">Transactions</a>
+  {{ else }}
+  <a href="/auth">Log in</a>
+  &mdash;
+  <a href="/auth">Sign up</a>
+  {{ end }}
 </nav>
 {{end}}
