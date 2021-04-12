@@ -1,9 +1,8 @@
 <html>
 {{template "head"}}
 <body>
-{{template "nav"}}
+{{template "nav" .Name }}
 <main>
-  <h1>Hello, {{ .Name }}
   <h1>Stocks</h1>
   <table>
     <thead>
@@ -40,11 +39,11 @@
     <tbody>
     {{ range $t := .Transactions }}
     <tr>
-      <td>{{ $t.Cat_id.Int64 }}</td>
+      <td>{{ $t.Cat_name }}</td>
       <td>{{ $t.Amount }}</td>
       <td>{{ $t.Balance }}</td>
       <td>{{ $t.Description.String }}</td>
-      <td>{{ $t.Time.Format "2006 Jan 02 15:04" }}</td>
+      <td>{{ $t.Time.Format "2006 Jan 02 03:04 PM" }}</td>
     </tr>
     {{ end }}
     </tbody>
